@@ -1,4 +1,5 @@
 import os.path
+import math
 from OCC.Display.SimpleGui import init_display
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeSphere
 from OCC.Core.gp import gp_Pnt
@@ -7,6 +8,20 @@ from OCC.Extend.DataExchange import read_step_file
 from tkinter import *
 from PIL import ImageTk, Image
 from tkinter.ttk import *
+
+#import rawpy
+#import imageio
+
+#converts raw .CR2 file type to .jpg
+#pathNames = ["LSF9-1_C3_EQ_Phi0.CR2", "LSF9-1_C3_EQ_Phi0_t0C4.CR2", "LSF9-1_C3_EQ_Phi5.CR2"]
+
+#for i in pathNames:
+#    path = "C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\DefectImages\\" + i
+#    savedPath = "C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\DefectImages\\" + str(i) + ".jpg"
+
+#    with rawpy.imread(path) as raw:
+#        rgb = raw.postprocess()
+#        imageio.imsave(savedPath, rgb)
   
 # creates a Tk() object 
 master = Tk() 
@@ -24,21 +39,27 @@ def openCavityProgram():
     DEFECT_MARKER_SIZE = 6.0
     DEFECT_MARKER_TRANSPARENCY = 0.0
 
+    #include in talk 
+    #takes inputs theta and z-coordinate to place defect on weld
+    #theta = float(input("Input θ in degrees:  "))
+    #z_coor = float(input("Input the z-coordinate: "))
+    #x_coor = 91.425*(math.cos(theta))
+    #y_coor = 91.425*(math.sin(theta))
+
     ### Globals
     # The location of the defects and the corresponding image file names
-
     defects = [
     {
     'location': [0, 91.425, 415.5],
-    'image_file': 'C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\test11.jpg',
+    'image_file': 'C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\DefectImages\\LSF9-1_C3_EQ_Phi0.CR2.jpg',
     },
     {
     'location': [0, 91.425, 315.5],
-    'image_file': 'C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\test12.jpg',
+    'image_file': 'C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\DefectImages\\LSF9-1_C3_EQ_Phi0_t0C4.CR2.jpg',
     },
     {
     'location': [0, 91.425, 215.5],
-    'image_file': 'C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\test13.jpg',
+    'image_file': 'C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\DefectImages\\LSF9-1_C3_EQ_Phi5.CR2.jpg',
     },
     ]
 
@@ -65,7 +86,7 @@ def openCavityProgram():
                 new_pic = ImageTk.PhotoImage(resized)
 
                 my_label = Label(root, 
-                                text = "Close this window before selecting another defect",
+                                text = "Close this window before selecting another defect\n       Defect Coordinates: " + str(marker_info[hash]['location']),
                                 foreground = "#A7A799",
                                 font=("Helvetica", 13),
                                 image = new_pic,
