@@ -39,7 +39,6 @@ def openCavityProgram():
     DEFECT_MARKER_SIZE = 6.0
     DEFECT_MARKER_TRANSPARENCY = 0.0
 
-    #include in talk 
     #takes inputs theta and z-coordinate to place defect on weld
     #theta = float(input("Input θ in degrees:  "))
     #z_coor = float(input("Input the z-coordinate: "))
