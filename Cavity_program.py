@@ -1,10 +1,21 @@
+#Notes:
+#Update program to Github
+#Create JSON file in LabVIEW
+#.CR2 to .jpg file conversion after reading from JSON
+#include cavity model path in JSON?
+#takes inputs theta and z-coordinate from JSON and converts to x,y, and z coords
+
 import os.path
+import json
 import math
+
+#PythonOCC library
 from OCC.Display.SimpleGui import init_display
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeSphere
 from OCC.Core.gp import gp_Pnt
 from OCC.Extend.DataExchange import read_step_file
 
+#image processing
 from tkinter import *
 from PIL import ImageTk, Image
 from tkinter.ttk import *
@@ -33,35 +44,26 @@ master.geometry("420x100")
 # function to open a new window  
 # on a button click 
 def openCavityProgram(): 
-      
+
+    #cavityPath = input("Enter 3D cavity file path: ")  #/Users/Owner/Desktop/Cavity Models/JL0031321 C75 CAVITY ASSY.stp
     # Constants
     HASH_SIZE = 256
     DEFECT_MARKER_SIZE = 6.0
     DEFECT_MARKER_TRANSPARENCY = 0.0
 
+    #include in talk 
     #takes inputs theta and z-coordinate to place defect on weld
     #theta = float(input("Input θ in degrees:  "))
     #z_coor = float(input("Input the z-coordinate: "))
     #x_coor = 91.425*(math.cos(theta))
     #y_coor = 91.425*(math.sin(theta))
 
-    ### Globals
-    # The location of the defects and the corresponding image file names
-    defects = [
-    {
-    'location': [0, 91.425, 415.5],
-    'image_file': 'C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\DefectImages\\LSF9-1_C3_EQ_Phi0.CR2.jpg',
-    },
-    {
-    'location': [0, 91.425, 315.5],
-    'image_file': 'C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\DefectImages\\LSF9-1_C3_EQ_Phi0_t0C4.CR2.jpg',
-    },
-    {
-    'location': [0, 91.425, 215.5],
-    'image_file': 'C:\\Users\\Owner\\Desktop\\Documents\\School_20-21\\JLab\\DefectImages\\LSF9-1_C3_EQ_Phi5.CR2.jpg',
-    },
-    ]
-
+    # read a json file with image and cavity paths into a dictionary:
+    with open("C:/Users/Owner/Desktop/Documents/School_20-21/JLab/imagePathNames.json") as f:
+        data = json.load(f)
+        modelPath = data["modelPath"]
+        defects = data["defects"]
+	
     marker_info = {} # Coords and filenames by object hash
     marker_spheres = [] # The OCC Geometry Objects
 
@@ -84,8 +86,12 @@ def openCavityProgram():
                 resized = my_pic.resize((900,500), Image.ANTIALIAS)
                 new_pic = ImageTk.PhotoImage(resized)
 
+                x_info = str("{:.1f}".format(91.425*(math.cos(marker_info[hash]['location'][1]))))
+                y_info = str("{:.1f}".format(91.425*(math.sin(marker_info[hash]['location'][1]))))
+                z_info = str(marker_info[hash]['location'][0])
+
                 my_label = Label(root, 
-                                text = "Close this window before selecting another defect\n       Defect Coordinates: " + str(marker_info[hash]['location']),
+                                text = "Close this window before selecting another defect\n       Defect Coordinates: [" + x_info + ", " + y_info + ", " + z_info + "]",
                                 foreground = "#A7A799",
                                 font=("Helvetica", 13),
                                 image = new_pic,
@@ -97,9 +103,11 @@ def openCavityProgram():
 
     ### Create the markers
     for n in range(len(defects)):
-        x = defects[n]['location'][0]
-        y = defects[n]['location'][1]
-        z = defects[n]['location'][2]
+        z = defects[n]['location'][0]
+        theta = defects[n]['location'][1]
+        x = 91.425*(math.cos(theta))
+        y = 91.425*(math.sin(theta))
+
         marker_geom = BRepPrimAPI_MakeSphere(gp_Pnt(x,y,z), DEFECT_MARKER_SIZE).Shape()
         geom_hash = marker_geom.HashCode(HASH_SIZE)
         marker_spheres.append(marker_geom)
@@ -113,7 +121,8 @@ def openCavityProgram():
     display.register_select_callback(print_defect_filename)
 
     ### Load the cavity model
-    cavity = read_step_file(os.path.join("/Users", "Owner/Desktop", "Cavity Models", "JL0031321 C75 CAVITY ASSY.stp"))
+    
+    cavity = read_step_file(modelPath)
     display.DisplayShape(cavity, update=True)
     # display the markers
     for sphere in marker_spheres:
